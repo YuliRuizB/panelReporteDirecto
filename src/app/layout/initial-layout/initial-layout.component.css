@@ -1,0 +1,82 @@
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: white;
+  }
+  
+  .sidebar-header h2 {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: bold;
+  }
+  
+  .app-header {
+    background: white;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    height: 64px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .content-area {
+    padding: 16px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .inner-content {
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .app-header {
+    background: white;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    height: 64px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    justify-content: space-between; /* Separa los elementos en los extremos */
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;  
+    margin-right: 20px; /* Ajusta si quieres acercarlo más */
+  }
+  .user-info {
+    display: flex;
+    align-items: center;    
+  }
+  
+  .user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea los textos a la izquierda */
+    justify-content: center; /* Centra verticalmente */
+    margin-left: 10px; /* Espacio entre avatar y texto */
+    height: 100%; /* Asegura que el contenedor ocupe espacio suficiente */
+  }
+  
+  .user-name {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.2; /* Ajusta la separación del texto */
+  }
+  
+  .company-name {
+    font-size: 12px;
+    color: gray;
+    line-height: 1.2;
+    margin-top: 2px; /* Reduce espacio entre los textos */
+  }
+  

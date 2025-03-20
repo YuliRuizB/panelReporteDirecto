@@ -1,0 +1,192 @@
+<nz-page-header nzTitle="Eventos">
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" (click)="showModal()">Agregar Evento</button>
+  </nz-page-header-extra>
+</nz-page-header>
+
+<div class="event-container">
+  <nz-row [nzGutter]="16" class="responsive-grid">
+    <nz-col *ngFor="let event of eventList" [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+      <nz-card [nzBordered]="false" class="event-card">
+        <div class="event-header">
+          <h3>{{ event.name }}</h3>
+          <div class="event-actions">
+            <a (click)="openEditModal(event.id)">Ver</a>
+            <img src="assets/down.png" (click)="downloadEventPdf(event, event.id)" class="event-icon">
+            <nz-switch [(ngModel)]="event.active" (ngModelChange)="toggleEventStatus(event)" 
+              [nzCheckedChildren]="'Activo'" [nzUnCheckedChildren]="'Inactivo'"/>
+          </div>
+        </div>
+
+        <img *ngIf="event.imageURL" [src]="event.imageURL" alt="{{ event.name }}" class="event-image"/>
+
+        <div class="event-details">
+          <p><strong>Descripción:</strong> {{ event.description }}</p>
+          <p><strong>Dirección:</strong> {{ event.address }}</p>
+          <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
+          <p><strong>Hora Inicio:</strong> {{ event.startTime | date: 'hh:mm a' }}</p>
+          <p><strong>Hora Fin:</strong> {{ event.endTime ? (convertTimestampToDate(event.endTime) | date: 'hh:mm a') : 'Sin hora' }}</p>
+        </div>
+      </nz-card>
+    </nz-col>
+  </nz-row>
+</div>
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" (nzOnCancel)="handleCancel()"
+[nzFooter]="modalFooter">
+  <ng-template #modalTitle>Agregar Evento</ng-template>
+  <ng-template #modalContent>
+    <form [formGroup]="eventForm">      
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Nombre</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="name" placeholder="Ingrese el nombre" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Descripción</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <textarea nz-input formControlName="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Ubicación</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="lng" placeholder="Longitud de evento" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6"></nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="lat" placeholder="Latitud del evento" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Fecha</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-date-picker formControlName="date" nzFormat="yyyy-MM-dd"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Hora de Inicio</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Hora de Fin</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Dirección</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="address" placeholder="Ingrese la Dirección" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <img [src]="imagePreview || 'assets/event.png'" alt="Previsualización de imagen"
+            style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
+          <nz-upload nzName="image" [nzShowUploadList]="false" (nzChange)="onFileSelected($event,'a')">
+            <button nz-button>Seleccionar Imagen</button>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>   
+    </form>
+
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Guardar</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isVisibleEdit" [nzTitle]="modalTitleEdit" [nzContent]="modalContentEdit"
+  (nzOnCancel)="handleCancel()" [nzFooter]="modalFooterEdit">
+  <ng-template #modalTitleEdit>Editar Evento</ng-template>
+  <ng-template #modalContentEdit>
+    <form [formGroup]="eventFormEdit">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Nombre</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="name" placeholder="Ingrese el nombre" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Descripción</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <textarea nz-input formControlName="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Fecha</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-date-picker formControlName="date" nzFormat="yyyy-MM-dd"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Hora de Inicio</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Hora de Fin</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Dirección</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="address" placeholder="Ingrese la Dirección" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <img [src]="eventFormEdit.get('imageURL')?.value  || 'assets/event.png'" alt="Previsualización de imagen"
+            style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
+          <nz-upload nzName="image" [nzShowUploadList]="false" (nzChange)="onFileSelected($event, 'e')">
+            <button nz-button>Seleccionar Imagen</button>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #modalFooterEdit>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="submitFormEdit()" >Guardar</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isVisiblePdf" [nzTitle]="modalTitlePdf" [nzContent]="modalContentPDF"
+  (nzOnCancel)="handleCancel()" [nzFooter]="modalFooterPdf">
+  <ng-template #modalTitlePdf>   
+      <h2>Detalles del Evento</h2>
+  </ng-template>  
+  <ng-template #modalContentPDF>
+    <div id="pdfContent" #pdfContent class="pdf-container">
+      <img [src]="event.imageURL" width="400" >
+
+    <p><strong>Nombre:</strong> {{ event.name }}</p>
+    <p><strong>Descripción:</strong> {{ event.description }}</p>
+    <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
+    <p><strong>Hora de Inicio:</strong> {{ event.startTime  | date: 'hh:mm a'}}</p>
+    <p><strong>Hora de Fin:</strong> {{ event.endTime | date: 'hh:mm a' }}</p>
+    <p><strong>Ubicación:</strong> Lat {{ event.lat }}, Lng {{ event.lng }}</p>   
+    <p><strong>Dirección:</strong> {{ event.address }}</p>    
+    <p><strong> QR del evento</strong> </p>
+    <img *ngIf="qrCodeURL" [src]="qrCodeURL" alt="Código QR" width="150">
+    </div>
+  </ng-template>
+  <ng-template #modalFooterPdf>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="downloadPDF()">Descargar</button>
+  </ng-template>
+</nz-modal>

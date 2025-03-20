@@ -1,0 +1,32 @@
+<nz-page-header nzTitle="Usuarios" class="mb-3">
+  <div nz-page-header-extra>
+    <p class="fw-bold fs-5 text-center">Total {{ totUsers }} Usuarios</p>
+    <button nz-button nzType="primary" (click)="exportToExcel()">📥 Exportar a Excel</button>
+  </div>
+</nz-page-header>
+
+<div class="table-container">
+  <nz-table #sortTable [nzData]="listOfData" nzTableLayout="fixed" [nzBordered]="true" [nzScroll]="{ x: '2300px' }">
+    <thead>
+      <tr>
+        <th *ngFor="let column of listOfColumn" [nzFilters]="column.filters" [nzFilterFn]="column.filterFn"
+          [nzSortFn]="column.compare" [nzSortPriority]="column.priority">
+          {{ column.title }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of sortTable.data">
+        <td>{{ data.name }} {{ data.lastName }} {{ data.secondLastName }}</td>
+        <td>{{ data.email }}</td>
+        <td>{{ data.gender }}</td>
+        <td>{{ data.phoneNumber }}</td>
+        <td>{{ data.address }}</td>
+        <td>{{ data.postalCode }}</td>
+        <td>{{ data.age }}</td>
+        <td>{{ data.town }}</td>
+        <td>{{ data.state }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>

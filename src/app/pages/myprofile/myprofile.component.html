@@ -1,0 +1,95 @@
+<nz-page-header nzTitle="Mi Perfil ">
+  <nz-page-header-extra>
+    <button nz-button nzType="primary" (click)="submitForm()"> Guardar</button>
+  </nz-page-header-extra>
+</nz-page-header>
+<div>
+  <nz-card style="max-width: 500px; margin: auto;">
+    <form [formGroup]="profileForm">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Foto</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <!-- Avatar con imagen subida o por defecto -->
+          <nz-avatar [nzSize]="80" nzShape="circle" [nzSrc]="profileForm.get('photoURL')?.value || 'assets/avatar.png'">
+          </nz-avatar>
+          <nz-upload nzName="avatar" nzAction="action" [nzShowUploadList]="false" (nzChange)="onFileSelected($event)">
+            <!-- Botón para activar la subida -->
+            <button nz-button>Cambiar Foto</button>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Nombre</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="name" placeholder="Nombre" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Apellido Paterno</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="lastName" placeholder="Apellido Paterno" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Apellido Materno</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="secondLastName" placeholder="Apellido Materno" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Teléfono</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="phoneNumber" placeholder="Teléfono (10 dígitos)" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Dirección</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="address" placeholder="Dirección" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Colonia</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="colony" placeholder="Colonia" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Municipio</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="town" placeholder="Municipio" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Estado</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="state" placeholder="Estado" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Código Postal</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="postalCode" placeholder="Código Postal (5 dígitos)" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Correo</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="email" placeholder="Correo electrónico" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Perfil</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="role" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-card>
+</div>

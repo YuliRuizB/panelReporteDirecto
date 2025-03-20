@@ -1,0 +1,36 @@
+<div  class="container-fluid">
+    <div class="d-flex justify-content-center">
+        <nz-card class="text-center" >
+            <nz-avatar [nzSize]="280" nzIcon="user" [nzSrc]="'assets/logocentral.png'"></nz-avatar>
+            <p class="m-b-30"></p>
+            <form  nz-form [nzLayout]="'vertical'" [formGroup]="loginForm" (ngSubmit)="submitForm()">
+                <nz-form-item>
+                    <nz-form-label nzRequired nzFor="userName">Correo Electrónico</nz-form-label>
+                    <nz-form-control nzErrorTip="Por favor ingrese su correo!">
+                        <nz-input-group nzPrefixIcon="user">
+                            <input type="text" nz-input formControlName="userName" placeholder="Correo Electrónico">
+                        </nz-input-group>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-label nzRequired nzFor="password">Contraseña</nz-form-label>                  
+                    <nz-form-control nzErrorTip="¡Por favor ingrese su contraseña!">
+                        <nz-input-group nzPrefixIcon="lock">
+                            <input type="password" nz-input formControlName="password" placeholder="Contraseña">
+                        </nz-input-group>
+                    </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                    <nz-form-control>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <a class="float-right font-size-13 p-t-10 text-muted"
+                            routerLink="/authentication/forgot-password">  ¿Olvidó su contraseña?</a>                          
+                            <button nz-button nzType="primary" class="login-form-button"
+                                (click)="submitForm()">Ingresar</button>
+                        </div>
+                    </nz-form-control>
+                </nz-form-item>
+            </form>
+        </nz-card>
+    </div>
+</div>

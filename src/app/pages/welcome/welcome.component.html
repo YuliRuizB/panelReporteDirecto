@@ -1,0 +1,106 @@
+<nz-page-header nzTitle="Principal" >   
+</nz-page-header>
+<nz-content>
+    <div style="background: #ECECEC; padding: 30px;">
+        <nz-row [nzGutter]="16">
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+            <nz-card>
+              <nz-statistic
+                [nzValue]="totUsers"
+                [nzTitle]="'Usuarios Totales'"                
+                [nzValueStyle]="{ color: '#3F8600' }"
+              ></nz-statistic>
+              <ng-template #prefixTplOne><span nz-icon nzType="arrow-up"></span></ng-template>
+            </nz-card>
+          </nz-col>
+         
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+            <nz-card>
+              <nz-statistic
+              [nzValue]="totEvents"
+              [nzTitle]="'Eventos'"                
+              [nzValueStyle]="{ color: '#3F8600' }"
+              ></nz-statistic>
+              <ng-template #prefixTplTwo><span nz-icon nzType="arrow-down"></span></ng-template>
+            </nz-card>
+          </nz-col>
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+            <nz-card>
+              <nz-statistic
+              [nzValue]="totPub"
+              [nzTitle]="'Publicidad'"                
+              [nzValueStyle]="{ color: '#3F8600' }"
+              ></nz-statistic>
+              <ng-template #prefixTplTwo><span nz-icon nzType="arrow-down"></span></ng-template>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+        <br>
+        <nz-row [nzGutter]="16">
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+            <nz-card>
+              <nz-statistic
+                [nzValue]="totEvidence"
+                [nzTitle]="'Evidencias Totales'"                
+                [nzValueStyle]="{ color: '#3F8600' }"
+              ></nz-statistic>
+              <ng-template #prefixTplOne><span nz-icon nzType="arrow-up"></span></ng-template>
+            </nz-card>
+          </nz-col>
+        </nz-row>
+        <br>
+        <nz-row [nzGutter]="16">
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+            <nz-card>
+              <nz-statistic
+                [nzValue]="totEvidencePending"
+                [nzTitle]="'Pendientes'"                
+                [nzValueStyle]="{ color: '#3F8600' }"
+              ></nz-statistic>
+              <ng-template #prefixTplOne><span nz-icon nzType="arrow-up"></span></ng-template>
+            </nz-card>
+          </nz-col>
+          <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+              <nz-card>
+                <nz-statistic
+                  [nzValue]="totEvidenceRevision"
+                  [nzTitle]="'En revision'"                
+                  [nzValueStyle]="{ color: '#3F8600' }"
+                ></nz-statistic>
+                <ng-template #prefixTplOne><span nz-icon nzType="arrow-up"></span></ng-template>
+              </nz-card>
+            </nz-col>
+            <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+              <nz-card>
+                <nz-statistic
+                [nzValue]="totEvidenceApproved"
+                [nzTitle]="'Aprobadas'"                
+                [nzValueStyle]="{ color: '#3F8600' }"
+                ></nz-statistic>
+                <ng-template #prefixTplTwo><span nz-icon nzType="arrow-down"></span></ng-template>
+              </nz-card>
+            </nz-col>
+            <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+                <nz-card>
+                  <nz-statistic
+                  [nzValue]="totEvidenceRejected"
+                  [nzTitle]="'Rechazadas'"                
+                  [nzValueStyle]="{ color: '#3F8600' }"
+                  ></nz-statistic>
+                  <ng-template #prefixTplTwo><span nz-icon nzType="arrow-down"></span></ng-template>
+                </nz-card>
+              </nz-col>
+              <nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" nzXl="4">
+                <nz-card>
+                  <nz-statistic
+                  [nzValue]="totEvidenceFinalized"
+                  [nzTitle]="'Finalizadas'"                
+                  [nzValueStyle]="{ color: '#3F8600' }"
+                  ></nz-statistic>
+                  <ng-template #prefixTplTwo><span nz-icon nzType="arrow-down"></span></ng-template>
+                </nz-card>
+              </nz-col>
+          </nz-row>
+      </div>
+</nz-content>
+  

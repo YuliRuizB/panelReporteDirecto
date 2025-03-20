@@ -1,0 +1,91 @@
+<nz-page-header nzTitle="Evidencias">
+  <div nz-page-header-extra>
+    <div class="button-container">
+      <button nz-button nzType="primary" (click)="filterTot()">
+        Totales {{ totEvidence }}
+      </button>
+      <button nz-button class="pending-btn" (click)="filterPending()">
+        {{ totEvidencePending }} Pendientes
+      </button>
+      <button nz-button class="review-btn" (click)="filterReview()">
+        {{ totEvidenceReview }} En revisión
+      </button>
+      <button nz-button class="approved-btn" (click)="filterApproved()">
+        {{ totEvidenceApproved }} Aprobadas
+      </button>
+      <button nz-button nzType="primary" nzDanger="true" (click)="filterReject()">
+        {{ totEvidenceReject }} Rechazadas
+      </button>
+      <button nz-button class="finalized-btn" (click)="filterFinalized()">
+        {{ totEvidenceFinalize }} Finalizadas
+      </button>
+    </div>
+  </div>
+</nz-page-header>
+
+<div>
+  <nz-table #basicTable [nzData]="filteredData">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Titulo</th>
+        <th>Ubicación</th>
+        <th>Descripción</th>
+
+        <th>Estatus</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{ data.name }} {{ data.lastName}} {{ data.secondLastName}} </td>
+        <td>{{ data.title }}</td>
+        <td>{{ data.town }}, {{data.state}} </td>
+        <td>{{data.description}}</td>
+        <td>{{data.status}}</td>
+        <td>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="openModal(data)">Evidencia</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="Evidencia" (nzOnCancel)="handleCancel()" [nzFooter]="modalFooter"
+  [nzContent]="modalContent" [nzFooter]="modalFooter">
+  <ng-template #modalContent>
+    <div class="modal-content">
+      <div *ngIf="selectedData?.imageUrl" class="evidence-section">
+        <h3>Imagen de Evidencia</h3>
+        <img [src]="selectedData.imageUrl" alt="Evidencia" class="evidence-image" />
+      </div>
+
+      <div *ngIf="selectedData?.audioUrl" class="evidence-section">
+        <h3>Audio de Evidencia</h3>
+        <audio controls class="evidence-audio">
+          <source [src]="selectedData.audioUrl" type="audio/mpeg" />
+          Tu navegador no soporta la reproducción de audio.
+        </audio>
+      </div>
+    </div>
+    <div class="modal-content">
+      <h3>Actualizar Estatus</h3>
+      <nz-select [(ngModel)]="selectedStatus" (ngModelChange)="updateDefaultMessage()"
+        nzPlaceHolder="Selecciona un estatus">
+        <nz-option *ngFor="let status of statusList" [nzValue]="status.value" [nzLabel]="status.label"></nz-option>
+      </nz-select>
+
+      <h3>Título</h3>
+      <input nz-input [(ngModel)]="title" placeholder="Ingresa el título" />
+
+      <h3>Descripción</h3>
+      <textarea nz-input [(ngModel)]="description" placeholder="Ingresa la descripción" rows="4"></textarea>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!-- Footer personalizado del modal -->
+<ng-template #modalFooter>
+  <button nz-button nzType="default" (click)="handleCancel()">Cerrar</button>
+  <button nz-button nzType="primary" (click)="changeStatus()">Actualizar</button>
+</ng-template>

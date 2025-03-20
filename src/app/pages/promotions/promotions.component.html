@@ -1,0 +1,136 @@
+
+<nz-page-header nzTitle="Promociones">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()"><i nz-icon nzType="plus"></i> Agregar Promoción</button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  
+<div class="event-container">
+    <nz-row [nzGutter]="16">
+        <nz-col *ngFor="let p of promList" nzSpan="8">
+          <nz-card [nzBordered]="false"
+            style="border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); background-color: #f9f9f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h3 style="margin: 0; font-size: 1.25em; font-weight: bold;">{{ p.title }}</h3>
+              <a (click)="openEditModal(p.id)"
+                style="color: #007bff; cursor: pointer; text-decoration: underline;">Ver</a>             
+              <nz-switch [(ngModel)]="p.active" (ngModelChange)="togglePromStatus(p)" [nzCheckedChildren]="'Activo'" [nzUnCheckedChildren]="'Inactivo'" style="margin-left: 2px;"/>
+            </div>        
+            <img *ngIf="p.imageURL" [src]="p.imageURL" alt="{{ p.title }}"
+              style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;" />
+    
+            <div style="padding: 10px;">
+              <p style="font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 5px;display: inline;">Descripción:
+              </p>
+              <p style="font-size: 1em; color: #666; margin-bottom: 10px;display: inline;"> {{ p.description }}</p>
+              <br>
+              <p style="font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 5px; display: inline;">Fecha:</p>
+              <p style="font-size: 1em; color: #666; margin-bottom: 10px; display: inline;"> {{ p.startDate | date:
+                'fullDate' : 'es' }}</p>
+              <br>
+              <p style="font-size: 1.1em; font-weight: bold; color: #333; margin-bottom: 5px; display: inline;">Hora Inicio:
+              </p>
+              <p style="font-size: 1em; color: #666; margin-bottom: 10px; display: inline;"> {{ p.endDate | date:
+                'fullDate': 'es' }}</p>              
+            </div>
+          </nz-card>
+        </nz-col>
+      </nz-row>
+</div>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="modalTitle" [nzContent]="modalContent"
+ (nzOnCancel)="handleCancel()"  [nzFooter]="modalFooter">
+    <ng-template #modalTitle>Agregar Promoción</ng-template>
+    <ng-template #modalContent>
+      <form [formGroup]="promForm">      
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">Titulo</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input nz-input formControlName="title" placeholder="Ingrese el nombre" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">Descripción</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <textarea nz-input formControlName="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">Inicio</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <nz-date-picker formControlName="startDate" nzFormat="yyyy-MM-dd"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">Termino</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <nz-date-picker formControlName="endDate" nzFormat="yyyy-MM-dd"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item> 
+  
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <img [src]="imagePreview || 'assets/event.png'" alt="Previsualización de imagen"
+              style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
+            <nz-upload nzName="image" [nzShowUploadList]="false" (nzChange)="onFileSelected($event,'a')">
+              <button nz-button>Seleccionar Imagen</button>
+            </nz-upload>
+          </nz-form-control>
+        </nz-form-item>   
+      </form>
+  
+    </ng-template>
+    <ng-template #modalFooter>
+      <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+      <button nz-button nzType="primary" (click)="submitForm()" >Guardar</button>
+    </ng-template>
+  </nz-modal>
+
+  <nz-modal [(nzVisible)]="isVisibleEdit" [nzTitle]="modalTitleEdit" [nzContent]="modalContentEdit"
+  (nzOnCancel)="handleCancel()" [nzFooter]="modalFooterEdit">
+  <ng-template #modalTitleEdit>Editar Evento</ng-template>
+  <ng-template #modalContentEdit>
+    <form [formGroup]="promFormEdit">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Titulo</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <input nz-input formControlName="title" placeholder="Ingrese el titulo" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Descripción</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <textarea nz-input formControlName="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Inicio</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-date-picker formControlName="startDate" nzFormat="yyyy-MM-dd"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Termino</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-date-picker formControlName="endDate"nzFormat="yyyy-MM-dd"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>     
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <img [src]="promFormEdit.get('imageURL')?.value  || 'assets/event.png'" alt="Previsualización de imagen"
+            style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px;" />
+          <nz-upload nzName="image" [nzShowUploadList]="false" (nzChange)="onFileSelected($event, 'e')">
+            <button nz-button>Seleccionar Imagen</button>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #modalFooterEdit>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="submitFormEdit()" >Guardar</button>
+  </ng-template>
+</nz-modal>
