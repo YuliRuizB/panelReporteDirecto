@@ -28,13 +28,6 @@ const routes: Routes = [
         title: 'Verify Email'
       }
     },
-   /*  {
-      path: 'please-verify-email',
-      component: PleaseVerifyEmailComponent,
-      data: {
-        title: 'Verify Email'
-      }
-    }, */
     {
       path: 'forgot-password',
       component: ForgotPasswordComponent,

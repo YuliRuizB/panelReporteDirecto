@@ -81,6 +81,8 @@ import { ForgotPasswordComponent } from './authentication/forgot-password/forgot
 import es from '@angular/common/locales/es';
 import { es_ES } from 'ng-zorro-antd/i18n';
 import { LockOutline, UserOutline } from '@ant-design/icons-angular/icons';
+import { BajaUsuarioComponent } from './pages/baja-usuario/baja-usuario.component';
+import { PrivacyComponent } from './pages/privacy/privacy.component';
 
 registerLocaleData(es);
 
@@ -99,7 +101,9 @@ registerLocaleData(es);
     WelcomeComponent,
     ForgotPasswordComponent,
     InitialLayoutComponent,
-    LoginComponent    
+    LoginComponent,
+    BajaUsuarioComponent,
+    PrivacyComponent
   ],
   imports: [
     NzIconModule,

@@ -10,6 +10,8 @@ import { MyprofileComponent } from './pages/myprofile/myprofile.component';
 import { RoleComponent } from './pages/role/role.component';
 import { ProfilesComponent } from './pages/profiles/profiles.component';
 import { PromotionsComponent } from './pages/promotions/promotions.component';
+import { BajaUsuarioComponent } from './pages/baja-usuario/baja-usuario.component';
+import { PrivacyComponent } from './pages/privacy/privacy.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent, pathMatch: 'full' },
@@ -25,9 +27,12 @@ const routes: Routes = [
       { path: 'myprofile', component: MyprofileComponent },
       { path: 'role', component: RoleComponent },
       { path: 'profiles', component: ProfilesComponent },
-      { path: 'promotions', component:  PromotionsComponent }
+      { path: 'promotions', component:  PromotionsComponent },
+     
     ]
   },
+  { path: "privacy", component: PrivacyComponent },
+  { path: "bajaUsuario", component: BajaUsuarioComponent },
   {
     path: 'authentication',
     loadChildren: () => import('../app/authentication/authentication-routing,module').then(m => m.AuthenticationRoutingModule)    
