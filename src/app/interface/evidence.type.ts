@@ -15,5 +15,8 @@ export interface  Evidence {
   lat?: string;
   lng?: string;
   status?: string;
-
+  evidenceType?:string;
+  lngEvidence:number;
+  latEvidence:number;
+  dateTimeStamp?:Date;
 }

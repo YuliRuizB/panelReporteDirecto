@@ -7,13 +7,14 @@ import { every, finalize, map, Observable } from 'rxjs';
 import { eventsService } from '../../services/events.service';
 import { user } from '../../interface/user.type';
 import { AuthenticationService } from '../../services/authentication.service';
-import { event } from '../../interface/event.type';
+import { event, eventAtt, eventclick } from '../../interface/event.type';
 import { Timestamp } from 'firebase/firestore';
 import * as QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import jspdf from 'jspdf';
 import { HttpClient } from '@angular/common/http';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Component({
   selector: 'app-events',
@@ -27,10 +28,14 @@ export class EventsComponent {
   isVisiblePdf = false;
   user: any;
   eventList: event[] = [];
+  eventAttList : eventAtt [] = [];
+  eventClick : eventclick [] = [];
+  eventusers : eventclick [] = [];
   selectedEvent: any;
   isConfirmLoading = false
   isConfirmLoadingEdit = false;
   isUploading: boolean = false;
+  isClickModal:boolean = false;
   eventForm: FormGroup;
   eventFormEdit: FormGroup;
   imagePreview: string | undefined = undefined;
@@ -49,8 +54,12 @@ export class EventsComponent {
   modalTitleEdit: string = "";
   qrCodeURL: string | null = null;
   imageBase64: string | null = null;
+  numAtt: number = 0;
+  attInterested: number = 0;
   event: any = [];
-
+  isListView = true;
+  isAttendenceModal: boolean = false;
+  uniqueEvents: eventclick[] = [];
 
   constructor(private fb: FormBuilder,
     private bucketStorage: AngularFireStorage,
@@ -69,8 +78,9 @@ export class EventsComponent {
       imageURL: [''],
       lng: [''],
       lat: [''],
-      id: [''],
-      imageBase: ['']
+      uid: [''],
+      imageBase: [''],
+      attendanceControl :[false]
     });
 
     this.eventFormEdit = this.fb.group({
@@ -85,17 +95,31 @@ export class EventsComponent {
       address: [''],
       lng: [''],
       lat: [''],
-      id: [''],
-      imageBase: ['']
+      uid: [''],
+      imageBase: [''],      
+      attendanceControl :[false]
     });
 
     this.authService.user.subscribe((user: any) => {
       if (user) {
         this.user = user;
         this.loadEvents(this.user.customerId);
+        this.loadEventClick(this.user.customerId);
+      
       } else {
         this.user = [];
       }
+    });
+  }
+  
+  generateUniqueEvents() {
+    const seen = new Set();
+    this.uniqueEvents = this.eventClick.filter(item => {
+      if (seen.has(item.eventUid)) {
+        return false;
+      }
+      seen.add(item.eventUid);
+      return true;
     });
   }
 
@@ -117,11 +141,27 @@ export class EventsComponent {
     });
   }
 
+  loadEventClick(customerId:string) {    
+    this.eventsService.getEventClick(customerId).pipe(
+      map((actions: any) => actions.map((a: any) => {
+        const id = a.payload.doc.id;
+        const data = a.payload.doc.data() as any;
+        return {
+          id,
+          ...data
+        };
+      }))
+    ).subscribe((eventClick: eventclick[]) => {
+      this.eventClick = eventClick;
+      this.generateUniqueEvents();
+    });
+  }
   showModal(): void {
     this.isVisible = true;
+    this.eventForm.reset();
   }
 
-  handleOk(): void { 
+  handleOk(): void {
   }
 
   convertEndTimestampToDate(timestamp: any): Date | undefined {
@@ -136,22 +176,22 @@ export class EventsComponent {
   }
 
   submitForm(): void {
-    
-    if (this.eventForm.valid && !this.isUploading) {     
+
+    if (this.eventForm.valid && !this.isUploading) {
       this.eventForm.controls['customerId'].patchValue(this.user.customerId);
       this.eventsService.addEvent(this.eventForm.value);
       this.isConfirmLoading = true;
-      this.sendMessage('sucess','El evento se a creado con éxito');
+      this.sendMessage('sucess', 'El evento se a creado con éxito');
       this.isVisible = false;
     }
   }
 
-  submitFormEdit(): void {
-    if (this.eventFormEdit.valid && !this.isUploading) {      
+  submitFormEdit(): void {    
+    if (this.eventFormEdit.valid && !this.isUploading) {
       this.eventFormEdit.controls['customerId'].patchValue(this.user.customerId);
-      this.eventsService.editEvent(this.eventFormEdit.value, this.eventFormEdit.get('id')?.value);
+      this.eventsService.editEvent(this.eventFormEdit.value, this.eventFormEdit.get('uid')?.value);
       this.isConfirmLoadingEdit = true;
-       this.sendMessage('sucess','El evento se a actualizado con éxito');
+      this.sendMessage('sucess', 'El evento se a actualizado con éxito');
       this.isVisibleEdit = false;
     }
   }
@@ -177,9 +217,9 @@ export class EventsComponent {
             this.uploading = false;
             this.downloadURL = fileRef.getDownloadURL();
             this.downloadURL.subscribe(async (url) => {
-              
+
               if (mode === 'a') {
-                this.eventForm.controls['imageURL'].patchValue(url);             
+                this.eventForm.controls['imageURL'].patchValue(url);
                 this.imagePreview = url;
               } else {
                 this.eventFormEdit.controls['imageURL'].patchValue(url);
@@ -201,6 +241,16 @@ export class EventsComponent {
     this.isVisible = false;
     this.isVisibleEdit = false;
     this.isVisiblePdf = false;
+    this.isAttendenceModal = false;
+  }
+
+  handleCancelAtt(){
+    this.isAttendenceModal = false;  
+  }
+
+
+  handleCancelClick(){
+    this.isClickModal = false;  
   }
 
   private getBase64(img: File, callback: (img: string) => void): void {
@@ -225,14 +275,15 @@ export class EventsComponent {
       lng: new FormControl(null),
       lat: new FormControl(null),
       customerId: new FormControl(''),
-      id: new FormControl(''),
-      imageURL: new FormControl(''), 
-      imageBase: new FormControl(''),  
-      address: new FormControl('')    
+      uid: new FormControl(''),
+      imageURL: new FormControl(''),
+      imageBase: new FormControl(''),
+      address: new FormControl(''),
+      attendanceControl : new FormControl(null)
     });
 
 
-    this.selectedEvent = this.eventList.find(event => event.id === eventId); 
+    this.selectedEvent = this.eventList.find(event => event.uid === eventId);
     if (this.selectedEvent) {
       this.eventFormEdit.patchValue({
         name: this.selectedEvent.name,
@@ -246,14 +297,45 @@ export class EventsComponent {
         customerId: this.selectedEvent.customerId,
         imageURL: this.selectedEvent.imageURL,
         imageBase: this.selectedEvent.imageBase,
-        id: eventId
+        uid: eventId,
+        attendanceControl: this.selectedEvent.attendanceControl
       });
       this.isVisibleEdit = true;
       this.modalTitleEdit = 'Editar Evento';
     }
   }
 
-  downloadEventPdf(event: any, eventId: string): void { 
+  openAttendanceModal(eventId: string){
+    this.eventsService.getEventsAtt(this.user.customerId, eventId).pipe(
+      map((actions: any) => actions.map((a: any) => {
+        const id = a.payload.doc.id;
+        const data = a.payload.doc.data() as any;
+        return {
+          id,
+          ...data,
+        };
+      }))
+    ).subscribe((eventListAtt: eventAtt[]) => {
+      this.eventAttList = eventListAtt;
+      this.numAtt =  eventListAtt.length;
+      this.isAttendenceModal = true;
+    });  
+  }
+
+  openClickUsers(eventUid: any) {  
+  
+  const filtered = this.eventClick.filter(item => item.eventUid === eventUid);
+    this.eventusers = filtered.reduce((acc: eventclick[], current) => {
+      const exists = acc.find((user: eventclick) => user.email === current.email);
+      if (!exists) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+    this.isClickModal = true;
+  }
+
+  downloadEventPdf(event: any, eventId: string): void {
     this.event = {
       name: event.name,
       description: event.description,
@@ -266,14 +348,15 @@ export class EventsComponent {
       imageURL: event.imageURL,
       address: event.address,
       imageBase: event.imageBase,
-      id: event.id
+      uid: event.uid,
+      attendanceControl: event.attendanceControl
     };
-    this.generateQRCode(event);   
-    this.isVisiblePdf = true;    
+    this.generateQRCode(event);
+    this.isVisiblePdf = true;
   }
 
   generateQRCode(event: any) {
-    QRCode.toDataURL(event.id, { errorCorrectionLevel: 'H' }, (err, url) => {
+    QRCode.toDataURL(event.uid, { errorCorrectionLevel: 'H' }, (err, url) => {
       if (!err) {
         this.qrCodeURL = url;
       }
@@ -296,19 +379,71 @@ export class EventsComponent {
   downloadPDF() {
     const eventA = document.querySelector('#pdfContent') as any;
 
-    const image = html2canvas(eventA, { scale: 1, }).then((canvas)=>{      
-			const contentDataURL = canvas.toDataURL('image/jpg',  1.0)  
-      let pdf = new jspdf('p', 'mm', 'a4'); 
-      let position = 10;       
-			pdf.addImage(contentDataURL, 'PNG', 5, 5, 200, 250, undefined,'FAST') 
-      pdf.save('Evento.pdf');    
-    }).catch((error)=>{
-			console.log(error);
+    const image = html2canvas(eventA, { scale: 1, }).then((canvas) => {
+      const contentDataURL = canvas.toDataURL('image/jpg', 1.0)
+      let pdf = new jspdf('p', 'mm', 'a4');
+      let position = 10;
+      pdf.addImage(contentDataURL, 'PNG', 5, 5, 200, 250, undefined, 'FAST')
+      pdf.save('Evento.pdf');
+    }).catch((error) => {
+      console.log(error);
     })
-  } 
+  }
+  downloadPDFAtt() {
+    const eventA = document.querySelector('#pdfContentAtt') as HTMLElement;
+  
+    html2canvas(eventA, { scale: 2 }).then((canvas) => {
+      const contentDataURL = canvas.toDataURL('image/png');
+      const pdf = new jspdf('p', 'mm', 'a4');
+  
+      const imgWidth = 190; // A4 width - margins
+      const pageHeight = 295; // A4 height
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const position = 10;
+  
+      pdf.addImage(contentDataURL, 'PNG', 10, position, imgWidth, imgHeight);
+      pdf.save('ControlAsistencia.pdf');
+    }).catch((error) => {
+      console.error('Error al generar PDF:', error);
+    });
+  }
+
 
   toggleEventStatus(event: any): void {
-    this.eventsService.toogleActiveEvent(event.id, event.active);
-    this.sendMessage("sucess", "Se actualizó con éxito la imagen de perfil");
+    this.eventsService.toogleActiveEvent(event.uid, event.active);
+    this.sendMessage("sucess", "Se actualizó con éxito el Evento");
+  }
+
+  toggleView() {
+    this.isListView = !this.isListView;
+  }
+
+  confirmDeleteEvent(eventId: string): void {
+    if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
+      this.deleteEvent(eventId);
+    }
+  }
+
+  deleteEvent(eventId: string): void {    
+    this.eventsService.deleteEvent(eventId);
+  }
+
+  getAttendeesCount(eventId: string): number {
+    const filtered = this.eventClick.filter(item => item.eventUid === eventId);
+  
+    const uniqueUsers = filtered.reduce((acc: eventclick[], current) => {
+      const exists = acc.find(user => user.email === current.email);
+      if (!exists) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+  
+    return uniqueUsers.length;
+  }
+
+  formatDate(value: any): Date | null {
+    if (!value) return null;
+    return value.toDate ? value.toDate() : value;
   }
 }

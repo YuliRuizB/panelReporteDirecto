@@ -13,4 +13,5 @@ export interface user {
     role?: string;    
     customerId?:string;    
     customerName?:string;
+    birthday?:string;
   }

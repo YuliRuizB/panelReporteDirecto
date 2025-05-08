@@ -15,7 +15,8 @@ export class promotionService {
         const newPromRef = this.afs.collection('promotions').doc(docId);
         const batch = this.afs.firestore.batch();
         batch.set(newPromRef.ref, { 
-            ...data,                         
+            ...data,
+            uid: docId                   
           });
         return batch.commit();
     }
@@ -48,6 +49,14 @@ export class promotionService {
         batch.update(promRef.ref, { active: active});
         return batch.commit();
       
+    }
+    deleteProm(promId: string) {
+        const deletePromRef = this.afs.collection('promotions').doc(promId);
+        deletePromRef.delete().then(() => {
+            this.message.success('Promoción eliminada correctamente');
+        }).catch((err) => {
+            this.message.error('Hubo un error al eliminar: ', err);
+        });
     }
 
 

@@ -6,7 +6,7 @@
 </nz-page-header>
 
 <div class="table-container">
-  <nz-table #sortTable [nzData]="listOfData" nzTableLayout="fixed" [nzBordered]="true" [nzScroll]="{ x: '2300px' }">
+  <nz-table #sortTable [nzData]="listOfData" nzTableLayout="fixed" [nzScroll]="{ x: '100%' }">
     <thead>
       <tr>
         <th *ngFor="let column of listOfColumn" [nzFilters]="column.filters" [nzFilterFn]="column.filterFn"

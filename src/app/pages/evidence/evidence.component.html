@@ -22,8 +22,18 @@
     </div>
   </div>
 </nz-page-header>
-
 <div>
+  <h5>Filtros</h5>
+  <nz-select class="wide-select" style="width: 300px;" [(ngModel)]="selectEvidenceType"
+    (ngModelChange)="selectEvidenceTypeOption()" nzPlaceHolder="Selecciona un Tipo de Evidencia">
+    <nz-option [nzValue]="'Todos'" [nzLabel]="'Todos'" title="Todos"></nz-option>
+    <nz-option *ngFor="let evType of evidenceTypeList" [nzValue]="evType.uid" [nzLabel]="evType.name"
+      [title]="evType.name">
+    </nz-option>
+  </nz-select>
+  <button nz-button nzType="primary" (click)="exportToExcel()">📥 Exportar a Excel</button>
+</div>
+<div style="margin-top: 10px;">
   <nz-table #basicTable [nzData]="filteredData">
     <thead>
       <tr>
@@ -31,8 +41,8 @@
         <th>Titulo</th>
         <th>Ubicación</th>
         <th>Descripción</th>
-
         <th>Estatus</th>
+        <th>...</th>
       </tr>
     </thead>
     <tbody>
@@ -49,43 +59,141 @@
       </tr>
     </tbody>
   </nz-table>
+
 </div>
 
 <nz-modal [(nzVisible)]="isVisible" nzTitle="Evidencia" (nzOnCancel)="handleCancel()" [nzFooter]="modalFooter"
-  [nzContent]="modalContent" [nzFooter]="modalFooter">
+  [nzWidth]="'800px'" [nzContent]="modalContent" [nzFooter]="modalFooter">
   <ng-template #modalContent>
-    <div class="modal-content">
-      <div *ngIf="selectedData?.imageUrl" class="evidence-section">
-        <h3>Imagen de Evidencia</h3>
-        <img [src]="selectedData.imageUrl" alt="Evidencia" class="evidence-image" />
-      </div>
+    <nz-tabset>
+      <nz-tab nzTitle="Evidencia" >
+        <div class="modal-grid">
+          <!-- Sección de Imagen -->
+          <div *ngIf="selectedData?.imageUrl" class="evidence-section">
+            <h5>Imagen de Evidencia</h5>
+            <img [src]="selectedData.imageUrl" alt="Evidencia" class="evidence-image" />
+          </div>
+          <!-- Sección de Audio -->
+          <div *ngIf="selectedData?.audioUrl" class="evidence-section">
+            <h5>Audio de Evidencia</h5>
+            <audio controls class="evidence-audio">
+              <source [src]="selectedData.audioUrl" type="audio/mpeg" />
+              Tu navegador no soporta la reproducción de audio.
+            </audio>
+          </div>
+          <nz-card nzTitle="Actualizar Evidencia" style="width:600px;">
+            <!-- Actualizar Estatus -->
+            <div class="form-section">
+              <nz-select class="wide-select" [(ngModel)]="selectedStatus"
+                (ngModelChange)="updateDefaultMessage(selectedData)" nzPlaceHolder="Selecciona un estatus">
+                <nz-option *ngFor="let status of statusList" [nzValue]="status.value"
+                  [nzLabel]="status.label"></nz-option>
+              </nz-select>
+            </div>
+            <!-- Tabla de respuestas -->
+            <div class="table-section">
+              <nz-select class="wide-select" [(ngModel)]="selectedResponseUid" (ngModelChange)="selectResponseInfo()"
+                nzPlaceHolder="Selecciona una respuesta">
+                <nz-option *ngFor="let response of responseList" [nzValue]="response.uid" [nzLabel]="response.title"
+                  [title]="response.description">
+                </nz-option></nz-select>
+              <!-- Botón para agregar nueva respuesta -->
+              <button nz-button nzType="primary" style="width: 10px; margin-top: 3px; margin-left: 3px;"
+                (click)="openNewResponseModal(selectedData)">
+                <i nz-icon nzType="plus"></i> Agregar </button>
+              <button nz-button nzType="default" style="width: 10px; margin-top: 3px; margin-left: 3px;"
+                (click)="openEditResponseModal()">
+                <i nz-icon nzType="plus"></i> Editar </button>
+            </div>
+          </nz-card>
+          <nz-card nzTitle="Notificación" style="width:600px;">
+            <!-- Título y descripción -->
+            <div class="form-section">
+              <h5>Título</h5>
+              <input nz-input [(ngModel)]="title" placeholder="Ingresa el título" />
+              <h5>Descripción</h5>
+              <textarea nz-input [(ngModel)]="description" placeholder="Ingresa la descripción" rows="4"></textarea>
+            </div>
+        </nz-card>
+        <nz-card nzTitle="Información Extra" style="width:600px;">
+          <h5>Comentarios</h5>
+          <textarea nz-input [(ngModel)]="comments" placeholder="Ingresa un comentario (opcional)" rows="4"></textarea>
+          <h5>Costo</h5>
+          <input nz-input [(ngModel)]="cost" placeholder="Ingresa el costo (opcional)" />
+        </nz-card>
+        </div>
+      </nz-tab>
+      <nz-tab nzTitle="Historial">
+        <nz-table #basicTable1 [nzData]="notifyList">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Titulo</th>
+              <th>Descripción</th>
+              <th>Comentarios</th>
+              <th>Costo</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of basicTable1.data">
+              <td>{{ getFormattedDate(data.date) }}</td>
+              <td>{{ data.title }}</td>
+              <td>{{ data.description}} </td>
+              <td>{{data.comments}}</td>
+              <td>{{data.cost}}</td>
+              <td>{{data.status}}</td>            
+            </tr>
+          </tbody>
+        </nz-table>
+      </nz-tab>
+    </nz-tabset>
+  </ng-template>
 
-      <div *ngIf="selectedData?.audioUrl" class="evidence-section">
-        <h3>Audio de Evidencia</h3>
-        <audio controls class="evidence-audio">
-          <source [src]="selectedData.audioUrl" type="audio/mpeg" />
-          Tu navegador no soporta la reproducción de audio.
-        </audio>
-      </div>
-    </div>
-    <div class="modal-content">
-      <h3>Actualizar Estatus</h3>
-      <nz-select [(ngModel)]="selectedStatus" (ngModelChange)="updateDefaultMessage()"
-        nzPlaceHolder="Selecciona un estatus">
-        <nz-option *ngFor="let status of statusList" [nzValue]="status.value" [nzLabel]="status.label"></nz-option>
-      </nz-select>
-
-      <h3>Título</h3>
-      <input nz-input [(ngModel)]="title" placeholder="Ingresa el título" />
-
-      <h3>Descripción</h3>
-      <textarea nz-input [(ngModel)]="description" placeholder="Ingresa la descripción" rows="4"></textarea>
-    </div>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cerrar</button>
+    <button nz-button nzType="primary" (click)="changeStatus()">Actualizar</button>
   </ng-template>
 </nz-modal>
 
-<!-- Footer personalizado del modal -->
-<ng-template #modalFooter>
-  <button nz-button nzType="default" (click)="handleCancel()">Cerrar</button>
-  <button nz-button nzType="primary" (click)="changeStatus()">Actualizar</button>
-</ng-template>
+<nz-modal [(nzVisible)]="isNewResponseModalVisible" nzTitle="Nueva Respuesta Automatizada" [nzContent]="modalContentAdd"
+  (nzOnCancel)="handleNewResponseCancel()" (nzOnOk)="saveNewResponse()" [nzOkText]="'Guardar'"
+  [nzCancelText]="'Cancelar'" [nzWidth]="'600px'">
+  <ng-template #modalContentAdd>
+    <div class="form-section">
+      <h4>Título</h4>
+      <input nz-input [(ngModel)]="newResponse.title" placeholder="Ingresa el título" />
+      <h4>Status</h4>
+      <nz-select class="wide-select" [(ngModel)]="newResponse.status" nzPlaceHolder="Selecciona un estatus">
+        <nz-option *ngFor="let status of statusList" [nzValue]="status.value" [nzLabel]="status.label">
+        </nz-option>
+      </nz-select>
+
+      <h4>Descripción</h4>
+      <textarea nz-input [(ngModel)]="newResponse.description" placeholder="Ingresa la descripción" rows="3"></textarea>
+    </div>
+  </ng-template>
+
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isEditModalVisible" nzTitle="Editar Respuesta" [nzContent]="modalContentEdit"
+  [nzFooter]="modalFooterEdit" (nzOnCancel)="handleEditCancel()">
+  <!-- Contenido del modal -->
+  <ng-template #modalContentEdit>
+    <div class="modal-content">
+      <label>Título</label>
+      <input nz-input [(ngModel)]="editResponse.title" placeholder="Editar título" />
+
+      <label style="margin-top: 10px;">Descripción</label>
+      <textarea nz-input [(ngModel)]="editResponse.description" placeholder="Editar descripción" rows="4"></textarea>
+    </div>
+  </ng-template>
+
+  <!-- Footer del modal -->
+  <ng-template #modalFooterEdit>
+    <button nz-button (click)="handleEditCancel()">Cancelar</button>
+    <button nz-button nzDanger (click)="deleteResponse()">Borrar</button>
+    <button nz-button nzType="primary" (click)="saveEditedResponse()">Guardar</button>
+  </ng-template>
+
+</nz-modal>

@@ -7,4 +7,5 @@ export interface promotion {
     endDate?: Date;    
     customerId?:string;    
     id:string;
+    uid:string;
 }

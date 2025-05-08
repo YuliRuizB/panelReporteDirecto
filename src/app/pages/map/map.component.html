@@ -1,0 +1,51 @@
+<nz-page-header nzTitle="Mapa de Evidencias">
+    <div nz-page-header-extra>
+        <div class="button-container">
+            <button nz-button nzType="primary" (click)="filterTot()">
+                Totales {{ totEvidence }}
+            </button>
+            <button nz-button class="pending-btn" (click)="filterPending()">
+                {{ totEvidencePending }} Pendientes
+            </button>
+            <button nz-button class="review-btn" (click)="filterReview()">
+                {{ totEvidenceReview }} En revisión
+            </button>
+            <button nz-button class="approved-btn" (click)="filterApproved()">
+                {{ totEvidenceApproved }} Aprobadas
+            </button>
+            <button nz-button nzType="primary" nzDanger="true" (click)="filterReject()">
+                {{ totEvidenceReject }} Rechazadas
+            </button>
+            <button nz-button class="finalized-btn" (click)="filterFinalized()">
+                {{ totEvidenceFinalize }} Finalizadas
+            </button>
+        </div>
+    </div>
+</nz-page-header>
+<div>
+    <h5>Filtros</h5>
+    <nz-select class="wide-select" style="width: 300px; margin-bottom: 10px;" [(ngModel)]="selectEvidenceType"
+        (ngModelChange)="selectEvidenceTypeOption()" nzPlaceHolder="Selecciona un Tipo de Evidencia">
+        <nz-option [nzValue]="'Todos'" [nzLabel]="'Todos'" title="Todos"></nz-option>
+        <nz-option *ngFor="let evType of evidenceTypeList" [nzValue]="evType.uid" [nzLabel]="evType.name"
+            [title]="evType.name">
+        </nz-option>
+    </nz-select>
+</div>
+<div>
+    <google-map height="500px" width="100%" [center]="center" [zoom]="zoom">
+        <map-marker *ngFor="let item of filteredData; let i = index"
+            [position]="{ lat: item.latEvidence, lng: item.lngEvidence }" [title]="item.title"
+            (mapClick)="showInfoWindow(i, item)">
+        </map-marker>
+
+        <map-info-window #infoWindow>
+            <strong>Título:</strong> {{ selectedMarker?.title }}<br />
+            <strong> Descripcion: </strong>{{ selectedMarker?.description }} <br>
+            <strong>Tipo:</strong> {{ selectedMarker?.evidenceTypeName }}<br />            
+            <strong>Colonia: </strong>{{ selectedMarker?.colony }}<br />
+            <strong>Estado: </strong>{{ selectedMarker?.state }} <br>
+            <strong>Fecha:</strong> {{ formatDate(selectedMarker?.dateTimeStamp)  | date: 'mediumDate'}} <br>            
+        </map-info-window>
+    </google-map>
+</div>

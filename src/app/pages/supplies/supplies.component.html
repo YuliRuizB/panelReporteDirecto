@@ -1,0 +1,216 @@
+<nz-page-header nzTitle="Insumos">
+    <nz-page-header-extra>
+        <button nz-button nzType="primary" (click)="showModal()"><i nz-icon nzType="plus"></i> Agregar Insumo</button>       
+    </nz-page-header-extra>
+</nz-page-header>
+<div *ngIf="isListView" class="event-list-container">
+    <nz-table [nzData]="supplierList"  [nzSize]="'middle'" [nzScroll]="{ x: '1000px' }"
+        [nzPageSize]="10">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Costo Unitario</th>
+                <th>Cant. Inicial</th>
+                <th>Cant. Actual</th>              
+                <th>Fecha</th>                   
+                <th>Evento</th>
+                <th>...</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of supplierList">
+                <td> <nz-tag [nzColor]="item.active ? 'green' : 'red'">
+                    {{ item.active ? 'Activo' : 'Inactivo' }}
+                </nz-tag>       </td>
+                <td>{{ item.name }} </td>
+                <td>{{ item.description }}</td>
+                <td>{{item.cost | currency}}</td>
+                <td>{{ item.totalAmount }}</td>
+                <td>{{ item.actualAmount }}</td>              
+                <td>{{ formatDate(item.date) | date: 'mediumDate' }}</td>                        
+                <td>{{ getEventDescription(item.eventUid) }}</td>
+               <td>
+                <a nz-dropdown [nzDropdownMenu]="menu">
+                    Detalles
+                  </a>
+                  <nz-dropdown-menu #menu="nzDropdownMenu">
+                    <ul nz-menu>
+                      <li nz-menu-item (click)="openEditModal(item.uid)">Ver Detalle</li>
+                       <li nz-menu-item>
+                        <nz-switch [(ngModel)]="item.active" [nzCheckedChildren]="'Activo'"
+                          [nzUnCheckedChildren]="'Inactivo'" (ngModelChange)="toggleSuppStatus(item)">
+                        </nz-switch>
+                      </li>
+                      <li  nz-menu-item (click)="openModalControl(item.uid)">Control de
+                        Entregas </li>
+                      <li nz-menu-item (click)="confirmDeleteSupp(item.uid)">Eliminar</li>
+                    </ul>
+                  </nz-dropdown-menu>
+               </td>
+            </tr>
+        </tbody>
+    </nz-table>
+
+</div>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter">
+  <ng-template #modalTitle>Agregar Insumo</ng-template>
+  <ng-template #modalContent>
+    <form [formGroup]="supplierForm" nz-form [nzLayout]="'vertical'">
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24">Nombre</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <input nz-input formControlName="name" placeholder="Ingrese el nombre" />
+          </nz-form-control>
+        </nz-form-item>      
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24">Descripción</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <input nz-input formControlName="description" placeholder="Ingrese la descripción" />
+          </nz-form-control>
+        </nz-form-item>      
+        <nz-form-item>
+          <nz-row [nzGutter]="16">
+            <nz-col [nzSpan]="12">
+              <nz-form-label>Costo Unitario</nz-form-label>
+              <nz-form-control>
+                <input nz-input type="number" formControlName="cost" placeholder="Ej. 100.00" />
+              </nz-form-control>
+            </nz-col>
+            <nz-col [nzSpan]="12">
+              <nz-form-label>Cantidad</nz-form-label>
+              <nz-form-control>
+                <input nz-input type="number" formControlName="totalAmount" placeholder="Ej. 50" />
+              </nz-form-control>
+            </nz-col>
+          </nz-row>
+        </nz-form-item>      
+        <nz-form-item>         
+            <nz-col [nzSpan]="24">
+              <nz-form-label>Evento Asociado (Opcional)</nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="eventUid" nzPlaceHolder="Selecciona un evento">
+                    <nz-option *ngFor="let event of eventList" [nzValue]="event.id" [nzLabel]="event.name"></nz-option>
+                  </nz-select>
+              </nz-form-control>
+            </nz-col>         
+        </nz-form-item>
+      
+        <nz-form-item>
+          <nz-form-label>Activo</nz-form-label>
+          <nz-form-control>
+            <label nz-checkbox formControlName="active">Activo</label>
+          </nz-form-control>
+        </nz-form-item>
+      
+      </form>
+      
+  </ng-template>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Guardar</button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isVisibleEdit" [nzTitle]="modalTitleEdit" [nzContent]="modalContentEdit" (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooterEdit">
+  <ng-template #modalTitleEdit>Editar Insumo</ng-template>
+  <ng-template #modalContentEdit>
+    <form [formGroup]="supplierFormEdit" nz-form [nzLayout]="'vertical'">
+
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24">Nombre</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <input nz-input formControlName="name" placeholder="Ingrese el nombre" />
+          </nz-form-control>
+        </nz-form-item>      
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24">Descripción</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <input nz-input formControlName="description" placeholder="Ingrese la descripción" />
+          </nz-form-control>
+        </nz-form-item>      
+        <nz-form-item>
+          <nz-row [nzGutter]="16">
+            <nz-col [nzSpan]="12">
+              <nz-form-label>Costo Unitario</nz-form-label>
+              <nz-form-control>
+                <input nz-input type="number" formControlName="cost" placeholder="Ej. 100.00" />
+              </nz-form-control>
+            </nz-col>
+            <nz-col [nzSpan]="12">
+              <nz-form-label>Cantidad</nz-form-label>
+              <nz-form-control>
+                <input nz-input type="number" formControlName="totalAmount" placeholder="Ej. 50" />
+              </nz-form-control>
+            </nz-col>
+          </nz-row>
+        </nz-form-item>      
+        <nz-form-item>         
+            <nz-col [nzSpan]="24">
+              <nz-form-label>Evento Asociado (Opcional)</nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="eventUid" nzPlaceHolder="Selecciona un evento">
+                    <nz-option *ngFor="let event of eventList" [nzValue]="event.id" [nzLabel]="event.name"></nz-option>
+                  </nz-select>
+              </nz-form-control>
+            </nz-col>         
+        </nz-form-item>
+      </form>
+      
+  </ng-template>
+  <ng-template #modalFooterEdit>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="submitFormEdit()">Guardar</button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isControlVisible" [nzTitle]="ctrlEntregas"
+ [nzContent]="modalContentEntregas"  [nzWidth]="1000"  [nzBodyStyle]="{ 'height': '600px' }"
+  (nzOnCancel)="handleCancel()" [nzFooter]="modalFooterEntregas">
+  <ng-template #ctrlEntregas>
+    <h4>Control de Entregas </h4>
+  </ng-template>
+  <ng-template #modalContentEntregas>
+    <div id="pdfContentEtregas" #pdfContentAtt class="pdf-container">
+      <nz-table [nzData]="supplieListDetail" [nzBordered]="true"  [nzScroll]="{ x: '800px' }"
+        [nzPageSize]="10">
+        <thead>
+          <tr>
+            <th>Fecha de Registro</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Usuario App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of supplieListDetail">
+            <td>{{ formatDate(item.date) | date: 'mediumDate' }}</td> 
+            <td>{{ item.name }} </td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.amount }}</td>
+            <td>
+            <ng-container *ngIf="item.userid ; else noTag">
+                <nz-tag nzColor="green">Sí</nz-tag>
+              </ng-container>
+              <ng-template #noTag>
+                <nz-tag nzColor="red">No</nz-tag>
+              </ng-template>
+            </td>          
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </ng-template>
+  <ng-template #modalFooterEntregas>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="downloadExcelEntregas()">Descargar</button>
+  </ng-template>
+</nz-modal>

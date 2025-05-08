@@ -83,6 +83,13 @@ import { es_ES } from 'ng-zorro-antd/i18n';
 import { LockOutline, UserOutline } from '@ant-design/icons-angular/icons';
 import { BajaUsuarioComponent } from './pages/baja-usuario/baja-usuario.component';
 import { PrivacyComponent } from './pages/privacy/privacy.component';
+import { ClientComponent } from './authentication/client/client.component';
+import { TermsComponent } from './pages/terms/terms.component';
+import { ConfigurationsComponent } from './pages/configurations/configurations.component';
+import { SuppliesComponent } from './pages/supplies/supplies.component';
+import { MapComponent } from './pages/map/map.component';
+import { GoogleMapsModule } from '@angular/google-maps';
+
 
 registerLocaleData(es);
 
@@ -103,7 +110,12 @@ registerLocaleData(es);
     InitialLayoutComponent,
     LoginComponent,
     BajaUsuarioComponent,
-    PrivacyComponent
+    PrivacyComponent,
+    ClientComponent,
+    TermsComponent,
+    ConfigurationsComponent,
+    SuppliesComponent,
+    MapComponent
   ],
   imports: [
     NzIconModule,
@@ -171,7 +183,8 @@ registerLocaleData(es);
     NzProgressModule,
     NzTimePickerModule,
     NzPopconfirmModule,
-    HttpClientModule
+    HttpClientModule ,
+    GoogleMapsModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: es_ES },

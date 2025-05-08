@@ -38,6 +38,7 @@ export class PromotionsComponent {
   images: Observable<any[]> | undefined;
   uploading: boolean = false;
   bucketPath: string = 'promotions/';
+  isListView: boolean = true; 
 
   constructor(private fb: FormBuilder,
     private bucketStorage: AngularFireStorage,
@@ -52,7 +53,7 @@ export class PromotionsComponent {
       endDate: [null, Validators.required],
       startDate: [null, Validators.required],      
       imageURL: [''],
-      id: ['']
+      uid: ['']
     });
 
     this.promFormEdit = this.fb.group({
@@ -63,7 +64,7 @@ export class PromotionsComponent {
       endDate: [null, Validators.required],
       startDate: [null, Validators.required],      
       imageURL: [''],
-      id: ['']
+      uid: ['']
     });
 
     this.authService.user.subscribe((user: any) => {
@@ -107,10 +108,12 @@ export class PromotionsComponent {
 
   handleCancel(): void {
     this.isVisible = false;
+    this.isVisibleEdit = false;
   }
 
   showModal(): void {
     this.isVisible = true;
+    this.promForm.reset();
   }
 
   sendMessage(type: string, message: string): void {
@@ -118,7 +121,7 @@ export class PromotionsComponent {
   }
 
   togglePromStatus(prom: any): void {
-    this.promService.toogleActiveProm(prom.id, prom.active);
+    this.promService.toogleActiveProm(prom.uid, prom.active);
     this.sendMessage("sucess", "Se actualizó con el estatus de la promoción");
   }
 
@@ -129,7 +132,7 @@ export class PromotionsComponent {
       endDate: new FormControl(null),      
       startDate: new FormControl(null),
       customerId: new FormControl(''),
-      id: new FormControl(''),
+      uid: new FormControl(''),
       imageURL: new FormControl(''),
     });
 
@@ -142,7 +145,7 @@ export class PromotionsComponent {
         endDate: this.selectedProm.endDate,      
         customerId: this.selectedProm.customerId,
         imageURL: this.selectedProm.imageURL,
-        id: pId
+        uid: pId
       });
       this.isVisibleEdit = true;
     }
@@ -209,12 +212,20 @@ export class PromotionsComponent {
   submitFormEdit(): void {
     if (this.promFormEdit.valid && !this.isUploading) {      
       this.promFormEdit.controls['customerId'].patchValue(this.user.customerId);
-      this.promService.editPromotion(this.promFormEdit.value, this.promFormEdit.get('id')?.value);
+      this.promService.editPromotion(this.promFormEdit.value, this.promFormEdit.get('uid')?.value);
       this.isConfirmLoadingEdit = true;
        this.sendMessage('sucess','El evento se a actualizado con éxito');
       this.isVisibleEdit = false;
     }
   }
 
+  confirmDeleteProm(promId: string): void {
+    if (confirm('¿Estás seguro de que quieres eliminar esta promoción?')) {
+      this.deleteProm(promId);
+    }
+  }
 
+  deleteProm(promId: string): void {    
+    this.promService.deleteProm(promId);
+  }
 }

@@ -1,41 +1,117 @@
 <nz-page-header nzTitle="Eventos">
   <nz-page-header-extra>
-    <button nz-button nzType="primary" (click)="showModal()">Agregar Evento</button>
+    <button nz-button nzType="primary" (click)="showModal()"><i nz-icon nzType="plus"></i> Agregar Evento</button>
+    <nz-switch style="margin-left: 5px;" [(ngModel)]="isListView" [nzCheckedChildren]="'Modo Lista'"
+      [nzUnCheckedChildren]="'Modo Tarjeta'">
+    </nz-switch>
   </nz-page-header-extra>
 </nz-page-header>
+<nz-tabset>
+  <nz-tab nzTitle="Eventos">
+    <div>
+      <!-- Card View -->
+      <nz-row *ngIf="!isListView" [nzGutter]="16" class="responsive-grid">
+        <nz-col *ngFor="let event of eventList" [nzXs]="24" [nzSm]="12" [nzMd]="10" [nzLg]="12">
+          <nz-card [nzBordered]="false" class="event-card">
+            <div class="event-header">
+              <h3>{{ event.name }}</h3>
+              <div class="event-actions">
+                <a (click)="openEditModal(event.uid)">Ver</a>
+                <img src="assets/down.png" (click)="downloadEventPdf(event, event.uid)" class="event-icon">
+                <nz-switch [(ngModel)]="event.active" (ngModelChange)="toggleEventStatus(event)"
+                  [nzCheckedChildren]="'Activo'" [nzUnCheckedChildren]="'Inactivo'" />
+                <img src="assets/del.png" (click)="confirmDeleteEvent(event.uid)" class="event-icon delete-icon">
+              </div>
+            </div>
+            <img *ngIf="event.imageURL" [src]="event.imageURL" alt="{{ event.name }}" class="event-image" />
+            <div class="event-details">
+              <p><strong>Descripción:</strong> {{ event.description }}</p>
+              <p><strong>Dirección:</strong> {{ event.address }}</p>
+              <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
+              <p><strong>Hora Inicio:</strong> {{ event.startTime | date: 'hh:mm a' }}</p>
+              <p><strong>Hora Fin:</strong> {{ event.endTime ? (convertTimestampToDate(event.endTime) | date: 'hh:mm a')
+                :
+                'Sin hora' }}</p>
+            </div>
+          </nz-card>
+        </nz-col>
+      </nz-row>
 
-<div class="event-container">
-  <nz-row [nzGutter]="16" class="responsive-grid">
-    <nz-col *ngFor="let event of eventList" [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-      <nz-card [nzBordered]="false" class="event-card">
-        <div class="event-header">
-          <h3>{{ event.name }}</h3>
-          <div class="event-actions">
-            <a (click)="openEditModal(event.id)">Ver</a>
-            <img src="assets/down.png" (click)="downloadEventPdf(event, event.id)" class="event-icon">
-            <nz-switch [(ngModel)]="event.active" (ngModelChange)="toggleEventStatus(event)" 
-              [nzCheckedChildren]="'Activo'" [nzUnCheckedChildren]="'Inactivo'"/>
-          </div>
-        </div>
+      <!-- List View -->
+      <div *ngIf="isListView" class="event-list-container">
+        <nz-table #basicTable [nzData]="eventList" [nzSize]="'middle'">
+          <thead>
+            <tr>
+              <th nzWidth="20%">Nombre</th>
+              <th nzWidth="30%">Descripción</th>
+              <th nzWidth="15%">Fecha</th>
+              <th nzWidth="15%">Hora</th>
+              <th nzWidth="20%">...</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of eventList">
+              <td>{{ event.name }}</td>
+              <td>{{ event.description }}</td>
+              <td>{{ event.date | date: 'fullDate' : 'es' }}</td>
+              <td>{{ event.startTime | date: 'hh:mm a' }} -
+                {{ event.endTime ? (convertTimestampToDate(event.endTime) | date: 'hh:mm a') : 'Sin hora' }}</td>
+              <td>
+                <a nz-dropdown [nzDropdownMenu]="menu">
+                  Detalles
+                </a>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                  <ul nz-menu>
+                    <li nz-menu-item (click)="openEditModal(event.uid)">Ver Detalle</li>
+                    <li nz-menu-item (click)="downloadEventPdf(event, event.uid)">Descargar PDF</li>
+                    <li nz-menu-item>
+                      <nz-switch [(ngModel)]="event.active" [nzCheckedChildren]="'Activo'"
+                        [nzUnCheckedChildren]="'Inactivo'" (ngModelChange)="toggleEventStatus(event)">
+                      </nz-switch>
+                    </li>
+                    <li *ngIf="event.attendanceControl" nz-menu-item (click)="openAttendanceModal(event.uid)">Control de
+                      Asistencia </li>
+                    <li nz-menu-item (click)="confirmDeleteEvent(event.uid)">Eliminar</li>
+                  </ul>
+                </nz-dropdown-menu>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </div>
+  </nz-tab>
+  <nz-tab nzTitle="Preferencias">
+    <nz-table [nzData]="uniqueEvents" [nzBordered]="true" [nzScroll]="{ x: '600px' }" [nzPageSize]="10">
+      <thead>
+        <tr>
+          <th>Fecha de Evento</th>
+          <th>Evento</th>
+          <th>Interesados</th>
+          <th>...</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of uniqueEvents">
+          <td>{{ formatDate(item.eventDate) | date: 'mediumDate' }}</td>
+          <td>{{ item.eventName }} </td>
+          <td>{{ getAttendeesCount(item.eventUid) }} </td>
+          <td>
+            <a (click)="openClickUsers(item.eventUid)">
+              Detalles
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-tab>
+</nz-tabset>
 
-        <img *ngIf="event.imageURL" [src]="event.imageURL" alt="{{ event.name }}" class="event-image"/>
-
-        <div class="event-details">
-          <p><strong>Descripción:</strong> {{ event.description }}</p>
-          <p><strong>Dirección:</strong> {{ event.address }}</p>
-          <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
-          <p><strong>Hora Inicio:</strong> {{ event.startTime | date: 'hh:mm a' }}</p>
-          <p><strong>Hora Fin:</strong> {{ event.endTime ? (convertTimestampToDate(event.endTime) | date: 'hh:mm a') : 'Sin hora' }}</p>
-        </div>
-      </nz-card>
-    </nz-col>
-  </nz-row>
-</div>
 <nz-modal [(nzVisible)]="isVisible" [nzTitle]="modalTitle" [nzContent]="modalContent" (nzOnCancel)="handleCancel()"
-[nzFooter]="modalFooter">
+  [nzFooter]="modalFooter">
   <ng-template #modalTitle>Agregar Evento</ng-template>
   <ng-template #modalContent>
-    <form [formGroup]="eventForm">      
+    <form [formGroup]="eventForm">
       <nz-form-item>
         <nz-form-label [nzSpan]="6">Nombre</nz-form-label>
         <nz-form-control [nzSpan]="18">
@@ -85,7 +161,13 @@
           <input nz-input formControlName="address" placeholder="Ingrese la Dirección" />
         </nz-form-control>
       </nz-form-item>
-
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">Control de Asistencia</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-switch formControlName="attendanceControl" [nzCheckedChildren]="'True'" [nzUnCheckedChildren]="'False'">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
       <nz-form-item>
         <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
         <nz-form-control [nzSpan]="18">
@@ -95,7 +177,7 @@
             <button nz-button>Seleccionar Imagen</button>
           </nz-upload>
         </nz-form-control>
-      </nz-form-item>   
+      </nz-form-item>
     </form>
 
   </ng-template>
@@ -147,6 +229,13 @@
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
+        <nz-form-label [nzSpan]="6">Control de Asistencia</nz-form-label>
+        <nz-form-control [nzSpan]="18">
+          <nz-switch formControlName="attendanceControl" [nzCheckedChildren]="'True'" [nzUnCheckedChildren]="'False'">
+          </nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
         <nz-form-label [nzSpan]="6">Imagen</nz-form-label>
         <nz-form-control [nzSpan]="18">
           <img [src]="eventFormEdit.get('imageURL')?.value  || 'assets/event.png'" alt="Previsualización de imagen"
@@ -161,32 +250,89 @@
 
   <ng-template #modalFooterEdit>
     <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
-    <button nz-button nzType="primary" (click)="submitFormEdit()" >Guardar</button>
+    <button nz-button nzType="primary" (click)="submitFormEdit()">Guardar</button>
   </ng-template>
 </nz-modal>
 
 <nz-modal [(nzVisible)]="isVisiblePdf" [nzTitle]="modalTitlePdf" [nzContent]="modalContentPDF"
   (nzOnCancel)="handleCancel()" [nzFooter]="modalFooterPdf">
-  <ng-template #modalTitlePdf>   
-      <h2>Detalles del Evento</h2>
-  </ng-template>  
+  <ng-template #modalTitlePdf>
+    <h2>Detalles del Evento</h2>
+  </ng-template>
   <ng-template #modalContentPDF>
     <div id="pdfContent" #pdfContent class="pdf-container">
-      <img [src]="event.imageURL" width="400" >
-
-    <p><strong>Nombre:</strong> {{ event.name }}</p>
-    <p><strong>Descripción:</strong> {{ event.description }}</p>
-    <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
-    <p><strong>Hora de Inicio:</strong> {{ event.startTime  | date: 'hh:mm a'}}</p>
-    <p><strong>Hora de Fin:</strong> {{ event.endTime | date: 'hh:mm a' }}</p>
-    <p><strong>Ubicación:</strong> Lat {{ event.lat }}, Lng {{ event.lng }}</p>   
-    <p><strong>Dirección:</strong> {{ event.address }}</p>    
-    <p><strong> QR del evento</strong> </p>
-    <img *ngIf="qrCodeURL" [src]="qrCodeURL" alt="Código QR" width="150">
+      <p><strong>Nombre:</strong> {{ event.name }}</p>
+      <p><strong>Descripción:</strong> {{ event.description }}</p>
+      <p><strong>Fecha:</strong> {{ event.date | date: 'fullDate' : 'es' }}</p>
+      <p><strong>Hora de Inicio:</strong> {{ event.startTime | date: 'hh:mm a'}}</p>
+      <p><strong>Hora de Fin:</strong> {{ event.endTime | date: 'hh:mm a' }}</p>
+      <p><strong>Control de Asistencia:</strong> {{ event.attendanceControl }}</p>
+      <p><strong>Ubicación:</strong> Lat {{ event.lat }}, Lng {{ event.lng }}</p>
+      <p><strong>Dirección:</strong> {{ event.address }}</p>
+      <p><strong> QR del evento</strong> </p>
+      <img *ngIf="qrCodeURL" [src]="qrCodeURL" alt="Código QR" width="250">
     </div>
   </ng-template>
   <ng-template #modalFooterPdf>
     <button nz-button nzType="default" (click)="handleCancel()">Cancelar</button>
     <button nz-button nzType="primary" (click)="downloadPDF()">Descargar</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isAttendenceModal" [nzTitle]="ControlAsistencia" [nzContent]="modalContentAtt"
+  (nzOnCancel)="handleCancelAtt()" [nzFooter]="modalFooterAtt">
+  <ng-template #ControlAsistencia>
+    <h4>Control de Asistencia ( {{ numAtt }} )</h4>
+  </ng-template>
+  <ng-template #modalContentAtt>
+    <div id="pdfContentAtt" #pdfContentAtt class="pdf-container">
+      <nz-table [nzData]="eventAttList" [nzBordered]="true" [nzSize]="'middle'" [nzScroll]="{ x: '300px' }"
+        [nzPageSize]="10">
+        <thead>
+          <tr>
+            <th>Fecha de Registro</th>
+            <th>Nombre</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of eventAttList">
+            <td>{{ item.dateRegister | date: 'mediumDate' }}</td>
+            <td>{{ item.name }} {{ item.lastName }} {{ item.secondLastName }} </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </ng-template>
+  <ng-template #modalFooterAtt>
+    <button nz-button nzType="default" (click)="handleCancelAtt()">Cancelar</button>
+    <button nz-button nzType="primary" (click)="downloadPDFAtt()">Descargar</button>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isClickModal" [nzTitle]="ClicUsers" [nzContent]="modalContentC"
+  (nzOnCancel)="handleCancelClick()" [nzFooter]="modalFooterC">
+  <ng-template #ClicUsers>
+    <h4>Usuarios Interesados </h4>
+  </ng-template>
+  <ng-template #modalContentC>
+    <nz-table [nzData]="eventusers" [nzBordered]="true" [nzSize]="'middle'" [nzScroll]="{ x: '300px' }"
+      [nzPageSize]="10">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of eventusers">
+          <td>{{ item.name }} {{ item.lastName }} {{ item.secondLastName }} </td>
+          <td>{{ item.email}}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-template>
+  <ng-template #modalFooterC>
+    <button nz-button nzType="default" (click)="handleCancelClick()">Cancelar</button>
   </ng-template>
 </nz-modal>

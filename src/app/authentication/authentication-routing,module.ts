@@ -4,6 +4,7 @@ import { ForgotPasswordComponent } from "./forgot-password/forgot-password.compo
 import { VerifyEmailComponent } from "./verify-email/verify-email.component";
 import { SignupComponent } from "./signup/signup.component";
 import { LoginComponent } from "./login/login.component";
+import { ClientComponent } from "./client/client.component";
 
 
 const routes: Routes = [  
@@ -33,6 +34,13 @@ const routes: Routes = [
       component: ForgotPasswordComponent,
       data: {
         title: 'Forgot Password'
+      }
+    }, 
+    {
+      path: 'client',
+      component: ClientComponent,
+      data: {
+        title: 'Client'
       }
     }
   ];

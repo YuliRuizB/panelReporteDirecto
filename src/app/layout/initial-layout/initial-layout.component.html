@@ -1,45 +1,41 @@
 <nz-layout class="app-layout">
   <!-- Sidebar (Menú lateral) -->
-  <nz-sider class="menu-sidebar"
-      nzCollapsible
-      nzWidth="256px"
-      style="background-color: white;"
-      nzBreakpoint="md"
-      [(nzCollapsed)]="isCollapsed"
-      [nzTrigger]="null">
-      <div class="sidebar-header">
-        <nz-avatar [nzSize]="40" nzShape="square" [nzSrc]="'assets/icono.png'"></nz-avatar>
-        <h2>Reporte Directo</h2>
-      </div>
+  <nz-sider class="menu-sidebar" nzCollapsible nzWidth="256px" style="background-color: white;" nzBreakpoint="md"
+    [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+    <div class="sidebar-header">
+      <nz-avatar [nzSize]="40" nzShape="square" [nzSrc]="'assets/icono.png'"></nz-avatar>
+      <h2>Reporte Directo</h2>
+    </div>
     <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed">
-      <li nz-submenu nzOpen nzTitle="Principal" nzIcon="dashboard">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/welcome">Inicio</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/evidence">Evidencias</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/events">Eventos</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/promotions">Promociones</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/users">Usuarios</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/welcome">Inicio</a>
       </li>
-      <li nz-submenu nzOpen nzTitle="Configuración" nzIcon="form">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a routerLink="/myprofile">Mi Perfil</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a (click)="authService.signOut()">Cerrar Sesión</a>
-          </li>
-        </ul>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/map">Mapa</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/evidence">Evidencias</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/events">Eventos</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/suppliers">Insumos</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/promotions">Promociones</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/users">Usuarios</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/configurations">Configuraciónes</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a routerLink="/myprofile">Mi Perfil</a>
+      </li>
+      <li nz-menu-item nzMatchRouter>
+        <a (click)="authService.signOut()">Cerrar Sesión</a>
       </li>
     </ul>
   </nz-sider>
@@ -51,21 +47,17 @@
       <!-- Botón para colapsar el menú -->
       <div class="header-left">
         <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
-          <span class="trigger"
-             nz-icon
-             [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'">
+          <span class="trigger" nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'">
           </span>
         </span>
       </div>
-    
+
       <!-- Sección del avatar y datos del usuario -->
       <div class="header-right">
         <nz-space nzSize="middle" class="user-info">
           <!-- Avatar circular -->
-          <nz-avatar [nzSize]="40" nzShape="circle"
-           [nzSrc]="user.photoURL || 'assets/avatar.png'"
-          ></nz-avatar>
-          
+          <nz-avatar [nzSize]="40" nzShape="circle" [nzSrc]="user.photoURL || 'assets/avatar.png'"></nz-avatar>
+
           <!-- Nombre del usuario y empresa -->
           <div class="user-details">
             <div class="user-name">{{ user.name}} {{ user.lastName }} {{ user.secondLastName }}</div>
@@ -74,7 +66,7 @@
         </nz-space>
       </div>
     </nz-header>
-    
+
 
     <!-- Contenido de las páginas -->
     <nz-content class="content-area">
@@ -85,12 +77,12 @@
   </nz-layout>
 </nz-layout>
 
-<footer class="footer"  style="background-color:#f9fbfd;">
+<footer class="footer" style="background-color:#f9fbfd;">
   <div class="footer-content justify-content-between">
-      <p class="m-b-0">Copyright © 2025 Reporte Directo,Sistems TI. Todos los derechos reservados.</p>
-      <span>
-        <a (click)="openPrivacy()" class="text-gray m-r-15">Privacidad</a>
-          <a (click)="showModalBaja()" class="text-gray">Baja Usuario</a>
-      </span>
+    <p class="m-b-0">Copyright © 2025 Reporte Directo,Sistems TI. Todos los derechos reservados.</p>
+    <span>
+      <a (click)="openPrivacy()" class="text-gray m-r-15">Privacidad</a>
+      <a (click)="showModalBaja()" class="text-gray">Baja Usuario</a>
+    </span>
   </div>
 </footer>
