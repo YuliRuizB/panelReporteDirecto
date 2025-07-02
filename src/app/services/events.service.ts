@@ -70,11 +70,31 @@ export class eventsService {
 
     deleteEvent(eventId: string) {
         const deleteEventRef = this.afs.collection('events').doc(eventId);
+      
+        // Primero eliminamos el evento
         deleteEventRef.delete().then(() => {
-            this.message.success('Evento eliminado correctamente');
+          // Luego buscamos todos los clicks relacionados a ese evento
+          this.afs.collection('eventsClick', ref => ref.where('eventUid', '==', eventId))
+            .get()
+            .subscribe(snapshot => {
+              const batch = this.afs.firestore.batch();
+      
+              snapshot.forEach(doc => {
+                batch.delete(doc.ref);
+              });
+      
+              // Ejecutamos el batch
+              batch.commit().then(() => {
+                this.message.success('Evento y registros relacionados eliminados correctamente');
+              }).catch(error => {
+                this.message.error('Error al eliminar los registros relacionados: ' + error.message);
+              });
+            });
+      
         }).catch((err) => {
-            this.message.error('Hubo un error al eliminar: ', err);
+          this.message.error('Hubo un error al eliminar el evento: ' + err.message);
         });
-    }
+      }
+      
 
 }

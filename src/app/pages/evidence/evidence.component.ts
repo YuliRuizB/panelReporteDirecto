@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { evidenceService } from '../../services/evidence.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { lastValueFrom, map, take } from 'rxjs';
-import { Evidence } from '../../interface/evidence.type';
+import { Evidence, evidenceType } from '../../interface/evidence.type';
 import { myProfileService } from '../../services/myprofile.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { notify } from '../../interface/notify.type';
@@ -29,6 +29,7 @@ export class EvidenceComponent {
   listOfData: Evidence[] = [];
   filteredData: Evidence[] = [];
   filteredDataFilter: Evidence[] = [];
+  eviType: evidenceType[] = [];
   selectedStatus: string = '';
   selectResponse: string = '';
   title: string = '';
@@ -89,8 +90,9 @@ export class EvidenceComponent {
           ...data
         };
       }))
-    ).subscribe((evidenceList: Evidence[]) => {
-      this.evidenceTypeList = evidenceList;     
+    ).subscribe((evidenceList: any) => {
+      this.evidenceTypeList = evidenceList;   
+      this.eviType  = evidenceList;
     });
   }
 
@@ -393,6 +395,11 @@ export class EvidenceComponent {
     if (!timestamp || !timestamp.seconds) return '';
     const date = new Date(timestamp.seconds * 1000);
     return date.toLocaleDateString(); 
+  }
+
+  getEvidenceDescription(uid: string): string {
+    const match = this.eviType.find(e => e.uid === uid);
+    return match ? match.name : 'Tipo desconocido';
   }
   
 }

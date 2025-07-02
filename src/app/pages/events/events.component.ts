@@ -114,6 +114,7 @@ export class EventsComponent {
   
   generateUniqueEvents() {
     const seen = new Set();
+    
     this.uniqueEvents = this.eventClick.filter(item => {
       if (seen.has(item.eventUid)) {
         return false;
@@ -178,11 +179,21 @@ export class EventsComponent {
   submitForm(): void {
 
     if (this.eventForm.valid && !this.isUploading) {
+      const startTime = this.eventForm.value.startTime;
+      const endTime = this.eventForm.value.endTime;
+  
+      if (startTime && endTime && endTime <= startTime) {
+        this.sendMessage('error', 'Las horas deben ser un rango válido');
+        return;
+      }
+  
       this.eventForm.controls['customerId'].patchValue(this.user.customerId);
       this.eventsService.addEvent(this.eventForm.value);
       this.isConfirmLoading = true;
-      this.sendMessage('sucess', 'El evento se a creado con éxito');
+      this.sendMessage('success', 'El evento se ha creado con éxito');
       this.isVisible = false;
+    } else {
+      this.sendMessage('error', 'Faltan valores de asignar, favor de llenarlos');
     }
   }
 

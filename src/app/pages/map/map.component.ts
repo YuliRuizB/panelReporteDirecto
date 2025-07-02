@@ -49,6 +49,7 @@ export class MapComponent {
 
   ngOnInit() {
     this.filteredData = this.listOfData; // Mostrar todos al inicio
+    this.filteredDataFilter = this.listOfData;
   }
   
 
@@ -63,7 +64,9 @@ export class MapComponent {
         };
       }))
     ).subscribe((evidenceList: Evidence[]) => {
-      this.listOfData = evidenceList;    
+      this.listOfData = evidenceList;  
+      this.filteredData = this.listOfData;
+      this.filteredDataFilter = this.filteredData;  
       this.updatePendingCount();
       
     });
@@ -83,35 +86,43 @@ export class MapComponent {
       this.evidenceTypeList = evidenceList;
     });
   }
-  selectEvidenceTypeOption() {  
-    if( this.selectEvidenceType === "Todos") {
-      this.filteredData =  this.filteredDataFilter;
-    } else {
-      this.filteredData = this.filteredDataFilter.filter((r: any) => r.evidenceTypeUid === this.selectEvidenceType);
-
-    }
+  selectEvidenceTypeOption() {      
+    this.filteredData = this.filteredDataFilter.filter((r: any) => 
+      r.evidenceTypeUid.trim() === this.selectEvidenceType.trim()
+    );  
   }
   filterFinalized(): void {
     this.filteredData = this.listOfData.filter(item => item.status === 'FINALIZED');
+    this.filteredDataFilter = this.filteredData;
   }
   filterTot(): void {
+    this.selectEvidenceType = 'Todos';
     this.filteredData = this.listOfData;
+    this.filteredDataFilter = this.filteredData;
   }
 
   filterPending(): void {
+    this.selectEvidenceType = 'Todos';
     this.filteredData = this.listOfData.filter(item => item.status === 'PENDING');
+    this.filteredDataFilter = this.filteredData;
   }
 
   filterReview(): void {
+    this.selectEvidenceType = 'Todos';
     this.filteredData = this.listOfData.filter(item => item.status === 'REVIEW');
+    this.filteredDataFilter = this.filteredData;
   }
 
   filterApproved(): void {
+    this.selectEvidenceType = 'Todos';
     this.filteredData = this.listOfData.filter(item => item.status === 'APPROVED');
+    this.filteredDataFilter = this.filteredData;
   }
 
   filterReject(): void {
+    this.selectEvidenceType = 'Todos';
     this.filteredData = this.listOfData.filter(item => item.status === 'REJECT');
+    this.filteredDataFilter = this.filteredData;
   }
 
   updatePendingCount(): void {
@@ -136,7 +147,16 @@ export class MapComponent {
 
   formatDate(value: any): Date | null {
     if (!value) return null;
-    return value.toDate ? value.toDate() : value;
+  
+    // Firestore Timestamp
+    if (value.toDate) return value.toDate();
+  
+    // Si ya es Date
+    if (value instanceof Date) return value;
+  
+    // Si es string o número
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
   }
 
 

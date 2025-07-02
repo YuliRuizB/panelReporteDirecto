@@ -16,7 +16,15 @@ export interface  Evidence {
   lng?: string;
   status?: string;
   evidenceType?:string;
+  evidenceTypeName?:string;
   lngEvidence:number;
   latEvidence:number;
   dateTimeStamp?:Date;
+}
+
+export interface evidenceType {
+  active: boolean;
+  customerId: string;
+  name:string;
+  uid:string;
 }

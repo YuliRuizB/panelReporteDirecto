@@ -40,7 +40,7 @@
         <th>Nombre</th>
         <th>Titulo</th>
         <th>Ubicación</th>
-        <th>Descripción</th>
+        <th>Tipo</th>
         <th>Estatus</th>
         <th>...</th>
       </tr>
@@ -50,7 +50,7 @@
         <td>{{ data.name }} {{ data.lastName}} {{ data.secondLastName}} </td>
         <td>{{ data.title }}</td>
         <td>{{ data.town }}, {{data.state}} </td>
-        <td>{{data.description}}</td>
+        <td>{{ data.evidenceTypeName }}</td>
         <td>{{data.status}}</td>
         <td>
           <nz-divider nzType="vertical"></nz-divider>
@@ -75,7 +75,7 @@
           </div>
           <!-- Sección de Audio -->
           <div *ngIf="selectedData?.audioUrl" class="evidence-section">
-            <h5>Audio de Evidencia</h5>
+            <h>Audio de Evidencia</h>
             <audio controls class="evidence-audio">
               <source [src]="selectedData.audioUrl" type="audio/mpeg" />
               Tu navegador no soporta la reproducción de audio.
@@ -83,6 +83,9 @@
           </div>
           <nz-card nzTitle="Actualizar Evidencia" style="width:600px;">
             <!-- Actualizar Estatus -->
+            <h7>Status Actual: {{selectedData?.status }} </h7>
+            <br>
+            <h7>Status Nuevo: </h7>
             <div class="form-section">
               <nz-select class="wide-select" [(ngModel)]="selectedStatus"
                 (ngModelChange)="updateDefaultMessage(selectedData)" nzPlaceHolder="Selecciona un estatus">
